@@ -1,7 +1,14 @@
 {
+  "OutputFoldersPerTargetSystem": {
+    "Ordinateur local": [
+      "out\\build\\x64-Debug",
+      "out\\install\\x64-Debug"
+    ]
+  },
   "ExpandedNodes": [
     "",
     "\\METRO"
   ],
+  "SelectedNode": "\\METRO\\METRO.cpp",
   "PreviewInSolutionExplorer": false
 }
