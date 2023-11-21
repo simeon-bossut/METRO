@@ -61,9 +61,9 @@ private:
 	int id;
 	float vitesse;
 	float acceleration;
-	vector<int> destination;//Tableau qui contient le nombre de personnes par destination. Exemple: 12 personnes vont descendre à la station 3 destination[3]=12 , lors de l'arrivée en gare, on 
 	float x_pos;
 	float y_pos;
+	vector<int> destination; //Tableau qui contient le nombre de personnes par station. Exemple: 12 personnes vont descendre à la station 3 => destination[3]=12 , lors de l'arrivée en gare, on modifie la case en fonction du nombre de personnes qui montent dans la rame
 public:
 	Rame(int n_id = -1, float n_vit = 0.0, float n_acc = 0.0) :id(n_id), vitesse(n_vit), acceleration(n_acc) {}
 	void move(int dx,int dy){}
