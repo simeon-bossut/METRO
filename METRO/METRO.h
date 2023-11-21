@@ -57,7 +57,7 @@ private:
 	int id;
 	float vitesse;
 	float acceleration;
-	vector<int> destination;//Tableau qui contient le nombre de personnes par destination. Exemple: 12 personnes vont descendre à la station 3 destination[]=12 , lors de l'arrivée en gare, on 
+	vector<int> destination;//Tableau qui contient le nombre de personnes par destination. Exemple: 12 personnes vont descendre à la station 3 destination[3]=12 , lors de l'arrivée en gare, on 
 	float x_pos;
 	float y_pos;
 public:
