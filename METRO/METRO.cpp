@@ -23,7 +23,7 @@ int main()
 	    modif_string(stat_name,' ','/');
 		if (stat_name != "N")
 		{
-			my_file << stat_name << " ";
+			my_file << stat_name; //g retiré l'espace en fin de mot
 		}
 
 	} while (stat_name != "N");

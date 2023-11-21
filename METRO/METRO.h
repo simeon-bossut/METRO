@@ -27,10 +27,12 @@ void modif_string(string text,char swap1,char swap2)
 
 class Quai
 {
-public:
+private:
 	int ligne;
-	Quai(int line):ligne(line){}
 	int nb_pers = 0;
+
+public:
+	Quai(int line):ligne(line){}
 	void set_nb_pers(int &nb) { nb_pers = nb; }
 	int get_nb_pers() { return nb_pers; }
 };
@@ -39,16 +41,18 @@ class Station
 {
 protected:
 	int id;
-public:
 	string name;
-	Station(int n_id=-1,string n_name="Inconnu") :id(n_id), name(n_name) {}
+
+public:
+	Station(int n_id=-1, string n_name="Inconnu") :id(n_id), name(n_name) {}
+
 	void set_id(int& n_id) { id = n_id; }
-	void set_name(string& n_name) { name=n_name; }
-	string get_name() { return string(name);  }
+	void set_name(string& n_name) { name = n_name; }
+
 	int get_id() { return id; }
-	void print() {
-		cout << "La station numero "<< id<< "a pour nom"<< name<<"\n\n";
-	}
+	string get_name() { return string(name);  }
+
+	void print() { cout << "La station numero " << id << "a pour nom" << name << "\n\n"; }
 };
 
 class System
@@ -72,7 +76,7 @@ public:
 		cout << "Le metro comprend:\n\n";
 		int a = 6;
 		for (auto i = METRO.begin();i != METRO.end();++i)
-			cout << "La station numero"<< (*i).get_id() << " a pour nom"<< (*i).get_name()<<"\n\n";
+			cout << "La station numero"<< (*i).get_id() << " a pour nom "<< (*i).get_name()<<"\n\n";
 	}
 private:
 	vector<Station> METRO;
