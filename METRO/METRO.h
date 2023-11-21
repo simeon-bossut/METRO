@@ -14,7 +14,7 @@ const int N_STAT = 12;
 
 using namespace std;
 
-void modif_string(string text,char swap1,char swap2)
+void modif_string(string&text,char swap1,char swap2)
 {
 	for (auto i = text.begin();i != text.end();++i)
 	{
@@ -55,10 +55,24 @@ public:
 	void print() { cout << "La station numero " << id << "a pour nom" << name << "\n\n"; }
 };
 
+class Rame
+{
+private:
+	int id;
+	float vitesse;
+	float acceleration;
+	vector<int> destination;//Tableau qui contient le nombre de personnes par destination. Exemple: 12 personnes vont descendre à la station 3 destination[3]=12 , lors de l'arrivée en gare, on 
+	float x_pos;
+	float y_pos;
+public:
+	Rame(int n_id = -1, float n_vit = 0.0, float n_acc = 0.0) :id(n_id), vitesse(n_vit), acceleration(n_acc) {}
+	void move(int dx,int dy){}
+
+};
 class System
 {
 public:
-	System(string file_name = "Bibliotheque_noms", int size=0) :METRO(size) { //organisé ainsi: Republique/Beaux/arts Lille/Flandres ...
+	System(string file_name = "bibliotheque_nom_stat.txt", int size=0) :METRO(size) { //organisé ainsi: Republique/Beaux/arts Lille/Flandres ...
 		ifstream Name_Stat(file_name);
 		for (int i = 0;i < METRO.size();++i)
 		{
@@ -80,5 +94,6 @@ public:
 	}
 private:
 	vector<Station> METRO;
+	vector<Rame> Engins;
 };
 
