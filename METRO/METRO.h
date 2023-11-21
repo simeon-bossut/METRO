@@ -1,7 +1,4 @@
-﻿// METRO.h : fichier Include pour les fichiers Include système standard,
-// ou les fichiers Include spécifiques aux projets.
-
-#pragma once
+﻿#pragma once
 
 #include <iostream>
 #include <string>
