@@ -9,7 +9,7 @@ int main()
 	string file_name="biblio_nom_stat.txt";
 	/*cout << "Quel est le nom d fichier voulu ? (sans espace svp) \n\n";
 	cin >> file_name; */
-	fstream my_file(file_name);
+	fstream my_file(file_name,ios::app);
 	string stat_name;
 	do {
 		Sleep(2);
