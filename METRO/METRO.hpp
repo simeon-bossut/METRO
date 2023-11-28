@@ -109,7 +109,7 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line)
 		direction = Line[i + 1] - Line[i];
 		angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
 		cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
-		while ((abs(position.x - Line[i + 1].x) > 1) || (abs(position.y - Line[i + 1].y) > 1))
+		while ((abs(position.x - Line[i + 1].x) > 2) || (abs(position.y - Line[i + 1].y) > 2))
 		{
 			move();
 			sf::sleep(sf::milliseconds(10));
