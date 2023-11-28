@@ -68,7 +68,8 @@ int main()
 
 
 	vector<Sprite> LIGNE_STAT;
-	vector<CircleShape> QUAIS;
+	vector<CircleShape> QUAIS_HAUT;
+	vector<CircleShape> QUAIS_BAS;
 	vector<RectangleShape> LIGNE_TRAJET;
 	vector<RectangleShape> LIGNE_TRAJET_ALLER;
 	vector<RectangleShape> LIGNE_TRAJET_RETOUR;
@@ -78,7 +79,6 @@ int main()
 	for (int i = 0;i < nb_stat;++i)
 	{
 		LIGNE_STAT.push_back(Sprite(texture_stat));
-		QUAIS.push_back(sf::CircleShape(50.f));
 		STATION.push_back(Vector2f((float)(75 + 180 * i),(float)( 400 + 50 * (i - 4) * cos(2 * i))));
 		//cout << 15.0 + 30 * i << " " << 50.0 + 5 * (i - 3) * (i - 3)<<endl;
 
@@ -86,6 +86,16 @@ int main()
 
 		LIGNE_STAT.back().setPosition(STATION[i].x, STATION[i].y);
 		LIGNE_STAT.back().setScale(factor_size_stat, factor_size_stat);
+
+		QUAIS_HAUT.push_back(sf::CircleShape(10.f));
+		QUAIS_HAUT.back().setOrigin(10,10);
+		QUAIS_HAUT.back().setPosition(STATION[i] - Vector2f(0.0, 25.0));
+
+		QUAIS_BAS.push_back(sf::CircleShape(10.f));
+		QUAIS_BAS.back().setOrigin(10, 10);
+		QUAIS_BAS.back().setPosition(STATION[i] + Vector2f(0.0, 25.0));
+		//QUAIS.back().setScale(factor_size_stat*2, factor_size_stat*2);
+
 		if (i > 0)
 		{
 			float norm_vect = sqrt((STATION[i].x - STATION[i - 1].x) * (STATION[i].x - STATION[i - 1].x) + (STATION[i].y - STATION[i - 1].y) * (STATION[i].y - STATION[i - 1].y));
@@ -104,7 +114,7 @@ int main()
 			LIGNE_TRAJET_RETOUR.back().setPosition(STATION[i - 1]+Vector2f(0.0,25.0));
 			LIGNE_TRAJET_RETOUR.back().setRotation((float)(angle * 180 / 3.14));
 
-			//QUAIS.back()
+			
 
 			
 			// cout << LIGNE_TRAJET[i-1].getSize().x << "," << LIGNE_TRAJET[i-1].getSize().y << endl;
@@ -160,6 +170,8 @@ int main()
 				window.draw(LIGNE_TRAJET_RETOUR[i]);
 			}
 			window.draw(LIGNE_STAT[i]);
+			window.draw(QUAIS_HAUT[i]);
+			window.draw(QUAIS_BAS[i]);
 		}
 		//rame.setPosition(Vector2f(R1.position.x-rame_size.x/2,R1.position.y - rame_size.y / 2));
 		rame.setPosition(R1.position);
