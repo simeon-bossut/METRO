@@ -82,10 +82,14 @@ int main()
 		STATION.push_back(Vector2f((float)(75 + 180 * i),(float)( 400 + 50 * (i - 4) * cos(2 * i))));
 		//cout << 15.0 + 30 * i << " " << 50.0 + 5 * (i - 3) * (i - 3)<<endl;
 
-		LIGNE_STAT.back().setOrigin(stat_size.x / 2, stat_size.y / 2); //place l'origine de l'image en son centre
 
-		LIGNE_STAT.back().setPosition(STATION[i].x, STATION[i].y);
-		LIGNE_STAT.back().setScale(factor_size_stat, factor_size_stat);
+		// STATIONS
+
+		LIGNE_STAT.back().setOrigin(stat_size.x / 2, stat_size.y / 2); //place l'origine de l'image en son centre
+		LIGNE_STAT.back().setPosition(STATION[i].x, STATION[i].y); //position
+		LIGNE_STAT.back().setScale(factor_size_stat, factor_size_stat); //taille
+
+		//QUAIS
 
 		QUAIS_HAUT.push_back(sf::CircleShape(10.f));
 		QUAIS_HAUT.back().setOrigin(10,10);
@@ -94,7 +98,9 @@ int main()
 		QUAIS_BAS.push_back(sf::CircleShape(10.f));
 		QUAIS_BAS.back().setOrigin(10, 10);
 		QUAIS_BAS.back().setPosition(STATION[i] + Vector2f(0.0, 25.0));
-		//QUAIS.back().setScale(factor_size_stat*2, factor_size_stat*2);
+
+
+
 
 		if (i > 0)
 		{
@@ -113,8 +119,6 @@ int main()
 			LIGNE_TRAJET_RETOUR.push_back(RectangleShape(Vector2f(norm_vect, 2.f)));
 			LIGNE_TRAJET_RETOUR.back().setPosition(STATION[i - 1]+Vector2f(0.0,25.0));
 			LIGNE_TRAJET_RETOUR.back().setRotation((float)(angle * 180 / 3.14));
-
-			
 
 			
 			// cout << LIGNE_TRAJET[i-1].getSize().x << "," << LIGNE_TRAJET[i-1].getSize().y << endl;
@@ -148,9 +152,9 @@ int main()
 		//	}
 		//}
 
-		while (window.pollEvent(event)) // Boucle des évènements de la partie pause
+		while (window.pollEvent(event)) // conditions de fermeture de la fenêtre
 		{
-			if ((event.type == Event::KeyPressed && event.key.code == sf::Keyboard::Escape) || event.type == Event::Closed)
+			if ((event.type == Event::KeyPressed && event.key.code == sf::Keyboard::Escape) || event.type == Event::Closed) //si on appuie sur échap ou qu'on ferme la fenêtre
 			{
 				window.close();
 			}
