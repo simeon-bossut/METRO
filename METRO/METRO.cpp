@@ -67,7 +67,7 @@ int main()
 	rame.setOrigin(rame_size.x / 2, rame_size.y / 2);
 
 
-	vector<Sprite> LIGNE_STAT;
+	std::vector<sf::Sprite> LIGNE_STAT;
 	vector<CircleShape> QUAIS;
 	vector<RectangleShape> LIGNE_TRAJET;
 	vector<RectangleShape> LIGNE_TRAJET_ALLER;
@@ -114,7 +114,7 @@ int main()
 	Rame R1;
 	R1.speed = 1;
 	R1.position = STATION[0];
-
+	vector< std::thread> THREADS;
 	std::thread t1(&Rame::start_move, &R1, std::ref(STATION));
 	t1.detach();
 
