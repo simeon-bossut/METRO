@@ -6,10 +6,6 @@ int main()
 {
 
 
-
-
-
-
 	string file_name="biblio_nom_stat.txt";
 	//*cout << "Quel est le nom du fichier voulu ? (sans espace svp) \n\n";
 	//cin >> file_name; */
@@ -53,7 +49,8 @@ int main()
 	if (!texture_stat.loadFromFile(ASSETS + "station.png"))
 		return EXIT_FAILURE;
 	sf::Vector2u stat_size = texture_stat.getSize();
-	cout << "dimensions de la station" << stat_size.x << "," << stat_size.y << endl << endl;
+
+					//cout << "dimensions de la station" << stat_size.x << "," << stat_size.y << endl << endl;
 
 
 	//System M(file_name,10,texture_ram,texture_stat);
@@ -80,7 +77,8 @@ int main()
 	{
 		LIGNE_STAT.push_back(Sprite(texture_stat));
 		STATION.push_back(Vector2f((float)(75 + 180 * i),(float)( 400 + 50 * (i - 4) * cos(2 * i))));
-		//cout << 15.0 + 30 * i << " " << 50.0 + 5 * (i - 3) * (i - 3)<<endl;
+
+							//cout << 15.0 + 30 * i << " " << 50.0 + 5 * (i - 3) * (i - 3)<<endl;
 
 
 		// STATIONS
@@ -105,7 +103,9 @@ int main()
 		if (i > 0)
 		{
 			float norm_vect = sqrt((STATION[i].x - STATION[i - 1].x) * (STATION[i].x - STATION[i - 1].x) + (STATION[i].y - STATION[i - 1].y) * (STATION[i].y - STATION[i - 1].y));
-			// cout << norm_vect<<endl;
+
+							// cout << norm_vect << endl;
+		
 			float angle = acos((STATION[i].x - STATION[i - 1].x) / norm_vect) * ((STATION[i].y - STATION[i - 1].y) > 0 ? 1 : -1);
 
 
@@ -121,7 +121,7 @@ int main()
 			LIGNE_TRAJET_RETOUR.back().setRotation((float)(angle * 180 / 3.14));
 
 			
-			// cout << LIGNE_TRAJET[i-1].getSize().x << "," << LIGNE_TRAJET[i-1].getSize().y << endl;
+							// cout << LIGNE_TRAJET[i-1].getSize().x << "," << LIGNE_TRAJET[i-1].getSize().y << endl;
 		}
 	}
 
