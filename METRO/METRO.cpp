@@ -57,11 +57,10 @@ int main()
 	//M.print();
 
 	int nb_stat = 10;
-
 	Sprite rame(texture_ram);
-	rame.setScale(0.5, 0.5);
 	Vector2f rame_size = rame.getGlobalBounds().getSize();
 	rame.setOrigin(rame_size.x / 2, rame_size.y / 2);
+	rame.setScale(0.25, 0.25);
 
 
 	vector<Sprite> LIGNE_STAT;
@@ -70,16 +69,14 @@ int main()
 	vector<RectangleShape> LIGNE_TRAJET;
 	vector<RectangleShape> LIGNE_TRAJET_ALLER;
 	vector<RectangleShape> LIGNE_TRAJET_RETOUR;
-
 	vector<Vector2f> STATION; //position des stations
+
+	float decalage = 25.0;
 	float factor_size_stat = 0.1;
 	for (int i = 0;i < nb_stat;++i)
 	{
 		LIGNE_STAT.push_back(Sprite(texture_stat));
-		STATION.push_back(Vector2f((float)(75 + 180 * i),(float)( 400 + 50 * (i - 4) * cos(2 * i))));
-
-							//cout << 15.0 + 30 * i << " " << 50.0 + 5 * (i - 3) * (i - 3)<<endl;
-
+		STATION.push_back(Vector2f((float)(300 + 130 * i),(float)( 550 + 50 * (i - 4) * cos(2 * i))));
 
 		// STATIONS
 
@@ -91,11 +88,11 @@ int main()
 
 		QUAIS_HAUT.push_back(sf::CircleShape(10.f));
 		QUAIS_HAUT.back().setOrigin(10,10);
-		QUAIS_HAUT.back().setPosition(STATION[i] - Vector2f(0.0, 25.0));
+		QUAIS_HAUT.back().setPosition(STATION[i] - Vector2f(0.0, decalage));
 
 		QUAIS_BAS.push_back(sf::CircleShape(10.f));
 		QUAIS_BAS.back().setOrigin(10, 10);
-		QUAIS_BAS.back().setPosition(STATION[i] + Vector2f(0.0, 25.0));
+		QUAIS_BAS.back().setPosition(STATION[i] + Vector2f(0.0, decalage));
 
 
 
@@ -126,10 +123,9 @@ int main()
 	}
 
 	Rame R1;
-	R1.speed = 1;
-	R1.position = STATION[0];
+	R1.speed = 2;
 
-	std::thread t1(&Rame::start_move, &R1, std::ref(STATION));
+	std::thread t1(&Rame::start_move, &R1, std::ref(STATION),decalage);
 	t1.detach();
 
 
@@ -178,7 +174,7 @@ int main()
 			window.draw(QUAIS_BAS[i]);
 		}
 		//rame.setPosition(Vector2f(R1.position.x-rame_size.x/2,R1.position.y - rame_size.y / 2));
-		rame.setPosition(R1.position);
+		rame.setPosition(R1.position);//+Vector2f(0,decalage)
 		rame.setRotation(R1.angle * 180 / 3.14);
 		window.draw(rame);
 		// Update the window

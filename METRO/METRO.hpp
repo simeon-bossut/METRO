@@ -98,24 +98,56 @@ public:
 
 	void move();
 
-	void start_move(const std::vector<sf::Vector2f>& Line);
+	void start_move(const std::vector<sf::Vector2f>& Line,float decalage);
 
 };
 
-void Rame::start_move(const std::vector<sf::Vector2f>& Line)
+void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 {
+	myMutex.lock();
+	position = Line[0] + Vector2f(0, -decalage);
+	myMutex.unlock();
 	for (int i = 0;i < Line.size() - 1;++i) //Line.size()-1
 	{
 		direction = Line[i + 1] - Line[i];
 		angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
 		cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
-		while ((abs(position.x - Line[i + 1].x) > 2) || (abs(position.y - Line[i + 1].y) > 2))
+		while ((abs(position.x - Line[i + 1].x) > 3) || (abs(position.y - Line[i + 1].y+decalage) > 3))
 		{
 			move();
 			sf::sleep(sf::milliseconds(10));
 		}
 		cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
-		sf::sleep(sf::milliseconds(100));
+		myMutex.lock();
+		angle = 0.0;
+		myMutex.unlock();
+		sf::sleep(sf::milliseconds(2000));
+	}
+	//std::mutex locked;
+	sf::sleep(sf::milliseconds(2000));
+	myMutex.lock();
+	position=Line[Line.size()-1]+Vector2f(0,decalage);
+	myMutex.unlock();
+	speed *=-1;
+	sf::sleep(sf::milliseconds(2000));
+
+
+	for (int i = Line.size()-1;i >0 ;--i) //Line.size()-1
+	{
+		direction = Line[i - 1] - Line[i];
+		angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
+		cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i - 1].x << "," << Line[i - 1].y << endl << endl;
+		while ((abs(position.x - Line[i - 1].x) > 3) || (abs(position.y - Line[i - 1].y-decalage) > 3))
+		{
+			move();
+			sf::sleep(sf::milliseconds(5));
+		}
+		cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
+
+		myMutex.lock();
+		angle = 0.0;
+		myMutex.unlock();
+		sf::sleep(sf::milliseconds(2000));
 	}
 	cout << "Finished" << endl;
 }
@@ -172,20 +204,19 @@ public:
 			else { Name = "Inconnu";}
 			modif_string(Name,'/',' ');
 			LIGNE.push_back(Station(i+1,Name,calcul_position_stat(i),Sprite(text_stat)));
-			//METRO.back().stat_sprite.setOrigin(METRO.back().position.x, METRO.back().position.x);
-			//METRO[i].print();
+
 		}
 	}
 	
-	void print();
+	//void print();
 };
 
-void System::print()
-{
-	cout << "Le metro comprend:\n\n";
-	int a = 6;
-	for (auto i = LIGNE.begin();i != LIGNE.end();++i)
-	{
-		cout << "La station numero" << (*i).get_id() << " a pour nom " << (*i).get_name() << "\n\n";
-	}
-}
+//void System::print()
+//{
+//	cout << "Le metro comprend:\n\n";
+//	int a = 6;
+//	for (auto i = LIGNE.begin();i != LIGNE.end();++i)
+//	{
+//		cout << "La station numero" << (*i).get_id() << " a pour nom " << (*i).get_name() << "\n\n";
+//	}
+//}
