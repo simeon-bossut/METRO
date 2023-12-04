@@ -59,7 +59,7 @@ int main()
 	//System M(file_name,10,texture_ram,texture_stat);
 	//M.print();
 
-	int nb_stat = 10;
+	int nb_stat = 6;
 	Sprite rame(texture_ram);
 	Vector2f rame_size = rame.getGlobalBounds().getSize();
 	rame.setOrigin(rame_size.x / 2, rame_size.y / 2);
@@ -79,7 +79,7 @@ int main()
 	for (int i = 0;i < nb_stat;++i)
 	{
 		LIGNE_STAT.push_back(Sprite(texture_stat));
-		STATION.push_back(Vector2f((float)(300 + 130 * i),(float)( 550 + 50 * (i - 4) * cos(2 * i))));
+		STATION.push_back(Vector2f((float)(300 + 200 * i),(float)( 550 + 50 * (i - 4) * cos(4 * i))));
 
 		// STATIONS
 
@@ -124,7 +124,8 @@ int main()
 	}
 
 	Rame R1;
-	R1.speed = 2;
+	R1.speed = 0;
+	R1.acceleration = -15;
 
 	std::thread t1(&Rame::start_move, &R1, std::ref(STATION),decalage);
 	t1.detach();

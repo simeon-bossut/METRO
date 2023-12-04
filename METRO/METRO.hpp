@@ -91,10 +91,12 @@ public:
 
 	float speed;
 
+	const float max_speed;
+
 	double angle;
 
-	Rame(int n_id = -1,sf::Sprite sprite=Sprite(), float n_speed = 0.0, sf::Vector2f pos = sf::Vector2f(), sf::Vector2f dir = sf::Vector2f(), double st_angle = 0.0, float n_acc = 0.f)
-		:position(pos), direction(dir), id(n_id), speed(n_speed), angle(st_angle),acceleration(n_acc),ram_sprite(sprite) {}
+	Rame(int n_id = -1,sf::Sprite sprite=Sprite(), float n_speed = 0.0, sf::Vector2f pos = sf::Vector2f(), sf::Vector2f dir = sf::Vector2f(), double st_angle = 0.0, float n_acc = 0.f,float max_vit=150.0)
+		:position(pos), direction(dir), id(n_id), speed(n_speed), angle(st_angle),acceleration(n_acc),ram_sprite(sprite),max_speed(max_vit) {}
 
 	void move();
 
@@ -104,64 +106,86 @@ public:
 
 void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 {
-	myMutex.lock();
-	position = Line[0] + Vector2f(0, -decalage);
-	myMutex.unlock();
-	for (int i = 0;i < Line.size() - 1;++i) //Line.size()-1
+	while (1)
 	{
-		direction = Line[i + 1] - Line[i];
-		angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
-		cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
-		while ((abs(position.x - Line[i + 1].x) > 3) || (abs(position.y - Line[i + 1].y+decalage) > 3))
-		{
-			move();
-			sf::sleep(sf::milliseconds(10));
-		}
-		cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
 		myMutex.lock();
-		angle = 0.0;
+		position = Line[0] + Vector2f(0, -decalage);
 		myMutex.unlock();
-		sf::sleep(sf::milliseconds(2000));
-	}
-	//std::mutex locked;
-	sf::sleep(sf::milliseconds(2000));
-	myMutex.lock();
-	position=Line[Line.size()-1]+Vector2f(0,decalage);
-	myMutex.unlock();
-	speed *=-1;
-	sf::sleep(sf::milliseconds(2000));
-
-
-	for (int i = Line.size()-1;i >0 ;--i) //Line.size()-1
-	{
-		direction = Line[i - 1] - Line[i];
-		angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
-		cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i - 1].x << "," << Line[i - 1].y << endl << endl;
-		while ((abs(position.x - Line[i - 1].x) > 3) || (abs(position.y - Line[i - 1].y-decalage) > 3))
+		speed *= -1;
+		acceleration *= -1;
+		for (int i = 0;i < Line.size() - 1;++i) //Line.size()-1
 		{
-			move();
-			sf::sleep(sf::milliseconds(5));
-		}
-		cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
+			direction = Line[i + 1] - Line[i];
+			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
+			cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
+			while ((abs(position.x - Line[i + 1].x) > 3) || (abs(position.y - Line[i + 1].y + decalage) > 3))
+			{
+				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 1.5s 
+				if (speed != 0) {
+					wait_time=sf::milliseconds(min(abs((int)(1000000 / speed) / 1000),1500));
+				}
+				else
+				{
+					wait_time = sf::milliseconds(20);
+				}
 
+				if (speed + acceleration*wait_time.asSeconds() >= 0) {
+					if (speed + acceleration * wait_time.asSeconds() >= max_speed) { speed = max_speed; }
+					else { speed += acceleration * wait_time.asSeconds(); }
+				}
+				cout << "tps_refresh" << wait_time.asMilliseconds() << endl;
+				cout << "speed" << speed << endl << endl;
+				move();
+				//cout << "Période de " << sf::Int64((float)(1000000 / speed) / 1000) <<endl;
+				sf::sleep(wait_time);//hyper IMPORTANT. La norme du vecteur de mouvement est constante, on change uniquement la période de refresh
+				//exemple. v=50px/s =50px/1000ms-> T(période)=1000/50=20 millisecondes
+			}
+			cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
+			myMutex.lock();
+			angle = 0.0;
+			myMutex.unlock();
+			sf::sleep(sf::milliseconds(500));
+		}
+		//std::mutex locked;
+		sf::sleep(sf::milliseconds(1000));
 		myMutex.lock();
-		angle = 0.0;
+		position = Line[Line.size() - 1] + Vector2f(0, decalage);
 		myMutex.unlock();
-		sf::sleep(sf::milliseconds(2000));
+		speed *= -1;
+		acceleration *= -1;
+		sf::sleep(sf::milliseconds(1000));
+
+
+		for (int i = Line.size() - 1;i > 0;--i) //Line.size()-1
+		{
+			direction = Line[i - 1] - Line[i];
+			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
+			cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i - 1].x << "," << Line[i - 1].y << endl << endl;
+			while ((abs(position.x - Line[i - 1].x) > 3) || (abs(position.y - Line[i - 1].y - decalage) > 3))
+			{
+				move();
+				sf::sleep(sf::milliseconds((sf::Int64((float)(1000000 / abs(speed)) / 1000))));
+			}
+			cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
+
+			myMutex.lock();
+			angle = 0.0;
+			myMutex.unlock();
+			sf::sleep(sf::milliseconds(500));
+		}
+		cout << "Finished" << endl;
 	}
-	cout << "Finished" << endl;
 }
 
 void Rame::move() {
 
 	std::lock_guard<std::mutex> locked(myMutex);
-	if (speed + acceleration >= 0) { speed += acceleration; }
 
 
 	//cout << "Angle d'orientation: " << angle * 180 / 3.14 << endl ;
 	//cout << "Avant a" << position.x << "," << position.y<<"   ";
-	position.x += (float)(speed * cos(angle));
-	position.y += (float)(speed * sin(angle));
+	position.x += (speed> 0 ? 1 : -1)*(float)(cos(angle));
+	position.y += (speed > 0 ? 1 : -1)*(float)(sin(angle));
 	//cout << "Maintenant à" << position.x << "," << position.y << endl;
 	//sf::sleep(sf::milliseconds(10));
    // cin >> angle;
