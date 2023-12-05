@@ -6,8 +6,9 @@
     ]
   },
   "ExpandedNodes": [
-    ""
+    "",
+    "\\METRO"
   ],
-  "SelectedNode": "\\CMakeLists.txt",
+  "SelectedNode": "\\METRO\\METRO.cpp",
   "PreviewInSolutionExplorer": false
 }

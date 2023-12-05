@@ -6,7 +6,7 @@ int main()
 {
 
 
-	string file_name="biblio_nom_stat.txt";
+	string file_name = "biblio_nom_stat.txt";
 	//*cout << "Quel est le nom du fichier voulu ? (sans espace svp) \n\n";
 	//cin >> file_name; */
 	//fstream my_file(file_name,ios::app);
@@ -50,83 +50,147 @@ int main()
 		return EXIT_FAILURE;
 	sf::Vector2u stat_size = texture_stat.getSize();
 
-					//cout << "dimensions de la station" << stat_size.x << "," << stat_size.y << endl << endl;
+	//cout << "dimensions de la station" << stat_size.x << "," << stat_size.y << endl << endl;
 
 
-	//System M(file_name,10,texture_ram,texture_stat);
-	//M.print();
+//System M(file_name,10,texture_ram,texture_stat);
+//M.print();
 
-	int nb_stat = 6;
-	Sprite rame(texture_ram);
-	Vector2f rame_size = rame.getGlobalBounds().getSize();
+	int nb_stat = 10;
+	sf::Sprite rame(texture_ram);
+	sf::Vector2f rame_size = rame.getGlobalBounds().getSize();
 	rame.setOrigin(rame_size.x / 2, rame_size.y / 2);
 	rame.setScale(0.25, 0.25);
 
 
-	vector<Sprite> LIGNE_STAT;
-	vector<CircleShape> QUAIS_HAUT;
-	vector<CircleShape> QUAIS_BAS;
-	vector<RectangleShape> LIGNE_TRAJET;
-	vector<RectangleShape> LIGNE_TRAJET_ALLER;
-	vector<RectangleShape> LIGNE_TRAJET_RETOUR;
-	vector<Vector2f> STATION; //position des stations
+	vector<sf::Sprite> SPRITE_STATIONS;
+	vector<sf::CircleShape> QUAIS_HAUT;
+	vector<sf::CircleShape> QUAIS_BAS;
+	vector<sf::RectangleShape> LIGNE_TRAJET;
+	vector<sf::RectangleShape> LIGNE_TRAJET_ALLER;
+	vector<sf::RectangleShape> LIGNE_TRAJET_RETOUR;
+	vector<sf::Vector2f> STATION; //position des stations
 
 	float decalage = 25.0;
 	float factor_size_stat = 0.1;
-	for (int i = 0;i < nb_stat;++i)
+
+	for (int i = 0; i < nb_stat; ++i)				//ATTENTION : ajout des stations 0 et max (stations de transition) -> nb_stat+2
 	{
-		LIGNE_STAT.push_back(Sprite(texture_stat));
-		STATION.push_back(Vector2f((float)(300 + 200 * i),(float)( 550 + 50 * (i - 4) * cos(4 * i))));
+		SPRITE_STATIONS.push_back(sf::Sprite(texture_stat)); //sprite +1
 
-		// STATIONS
+		STATION.push_back(sf::Vector2f((float)(300 + 130 * i), (float)(550 + 50 * (i - 4) * cos(2 * i)))); // station +1
 
-		LIGNE_STAT.back().setOrigin(stat_size.x / 2, stat_size.y / 2); //place l'origine de l'image en son centre
-		LIGNE_STAT.back().setPosition(STATION[i].x, STATION[i].y); //position
-		LIGNE_STAT.back().setScale(factor_size_stat, factor_size_stat); //taille
+		//STATIONS ET QUAIS
 
-		//QUAIS
+		SPRITE_STATIONS.back().setOrigin(stat_size.x / 2, stat_size.y / 2); //place l'origine de l'image en son centre
+		SPRITE_STATIONS.back().setPosition(STATION[i].x, STATION[i].y); //position
 
-		QUAIS_HAUT.push_back(sf::CircleShape(10.f));
-		QUAIS_HAUT.back().setOrigin(10,10);
-		QUAIS_HAUT.back().setPosition(STATION[i] - Vector2f(0.0, decalage));
+		QUAIS_HAUT.push_back(sf::CircleShape(10.f)); //quai_haut +1
+		QUAIS_HAUT.back().setOrigin(10, 10);
 
-		QUAIS_BAS.push_back(sf::CircleShape(10.f));
+		QUAIS_BAS.push_back(sf::CircleShape(10.f)); //quai_bas +1
 		QUAIS_BAS.back().setOrigin(10, 10);
-		QUAIS_BAS.back().setPosition(STATION[i] + Vector2f(0.0, decalage));
 
+		if (i == 0 || i == nb_stat - 1)
+		{
+			SPRITE_STATIONS.back().setScale(0, 0); //taille
 
-
+			QUAIS_HAUT.back().setPosition(STATION[i]);
+			QUAIS_BAS.back().setPosition(STATION[i]);
+		}
 
 		if (i > 0)
 		{
-			float norm_vect = sqrt((STATION[i].x - STATION[i - 1].x) * (STATION[i].x - STATION[i - 1].x) + (STATION[i].y - STATION[i - 1].y) * (STATION[i].y - STATION[i - 1].y));
+			float norm_vect = sqrt((STATION[i].x - STATION[i - 1].x)*(STATION[i].x - STATION[i - 1].x)  +  (STATION[i].y - STATION[i - 1].y)*(STATION[i].y - STATION[i - 1].y));
 
-							// cout << norm_vect << endl;
-		
-			float angle = acos((STATION[i].x - STATION[i - 1].x) / norm_vect) * ((STATION[i].y - STATION[i - 1].y) > 0 ? 1 : -1);
-
+			if (i == 1 || i == nb_stat - 1)
+			{
 
 
-			//création des deux lignes séparées
 
-			LIGNE_TRAJET_ALLER.push_back(RectangleShape(Vector2f(norm_vect, 2.f)));
-			LIGNE_TRAJET_ALLER.back().setPosition(STATION[i - 1] - Vector2f(0.0, 25.0));
-			LIGNE_TRAJET_ALLER.back().setRotation((float)(angle * 180 / 3.14));
 
-			LIGNE_TRAJET_RETOUR.push_back(RectangleShape(Vector2f(norm_vect, 2.f)));
-			LIGNE_TRAJET_RETOUR.back().setPosition(STATION[i - 1]+Vector2f(0.0,25.0));
-			LIGNE_TRAJET_RETOUR.back().setRotation((float)(angle * 180 / 3.14));
 
-			
-							// cout << LIGNE_TRAJET[i-1].getSize().x << "," << LIGNE_TRAJET[i-1].getSize().y << endl;
+				if (i == 1)
+				{
+
+
+					QUAIS_HAUT.back().setPosition(STATION[i] - sf::Vector2f(0.0, decalage));
+					QUAIS_BAS.back().setPosition(STATION[i] + sf::Vector2f(0.0, decalage));
+
+					float norm_vect_haut = sqrt((QUAIS_HAUT[i].getPosition().x - QUAIS_HAUT[i - 1].getPosition().x) * (QUAIS_HAUT[i].getPosition().x - QUAIS_HAUT[i - 1].getPosition().x) + (QUAIS_HAUT[i].getPosition().y - QUAIS_HAUT[i - 1].getPosition().y) * (QUAIS_HAUT[i].getPosition().y - QUAIS_HAUT[i - 1].getPosition().y));
+					float norm_vect_bas = sqrt((QUAIS_BAS[i].getPosition().x - QUAIS_BAS[i - 1].getPosition().x) * (QUAIS_BAS[i].getPosition().x - QUAIS_BAS[i - 1].getPosition().x) + (QUAIS_BAS[i].getPosition().y - QUAIS_BAS[i - 1].getPosition().y) * (QUAIS_BAS[i].getPosition().y - QUAIS_BAS[i - 1].getPosition().y));
+					
+					LIGNE_TRAJET_ALLER.push_back(sf::RectangleShape(sf::Vector2f(norm_vect_haut, 2.f)));
+					LIGNE_TRAJET_RETOUR.push_back(sf::RectangleShape(sf::Vector2f(norm_vect_bas, 2.f)));
+
+					SPRITE_STATIONS.back().setScale(factor_size_stat, factor_size_stat); //taille
+
+					LIGNE_TRAJET_ALLER.back().setPosition(STATION[i-1]);
+
+					//float angle_debut = tan(abs(QUAIS_HAUT[i].getPosition().y - QUAIS_HAUT[i - 1].getPosition().y) / abs(QUAIS_HAUT[i].getPosition().x - QUAIS_HAUT[i - 1].getPosition().x)) * ((STATION[i].y - STATION[i - 1].y) > 0 ? -1 : 1);
+					float angle_haut = atan((QUAIS_HAUT[i - 1].getPosition().y - QUAIS_HAUT[i].getPosition().y) / (QUAIS_HAUT[i - 1].getPosition().x - QUAIS_HAUT[i].getPosition().x));
+					float angle_bas = atan((QUAIS_BAS[i - 1].getPosition().y - QUAIS_BAS[i].getPosition().y) / (QUAIS_BAS[i - 1].getPosition().x - QUAIS_BAS[i].getPosition().x));
+
+
+					LIGNE_TRAJET_ALLER.back().setRotation((float)(angle_haut * 180 / PI));
+
+					LIGNE_TRAJET_RETOUR.back().setPosition(STATION[i-1]);
+					LIGNE_TRAJET_RETOUR.back().setRotation((float)(angle_bas * 180 / PI));
+				}
+				else
+				{
+					float norm_vect_haut = sqrt((QUAIS_HAUT[i].getPosition().x - QUAIS_HAUT[i - 1].getPosition().x) * (QUAIS_HAUT[i].getPosition().x - QUAIS_HAUT[i - 1].getPosition().x) + (QUAIS_HAUT[i].getPosition().y - QUAIS_HAUT[i - 1].getPosition().y) * (QUAIS_HAUT[i].getPosition().y - QUAIS_HAUT[i - 1].getPosition().y));
+					float norm_vect_bas = sqrt((QUAIS_BAS[i].getPosition().x - QUAIS_BAS[i - 1].getPosition().x) * (QUAIS_BAS[i].getPosition().x - QUAIS_BAS[i - 1].getPosition().x) + (QUAIS_BAS[i].getPosition().y - QUAIS_BAS[i - 1].getPosition().y) * (QUAIS_BAS[i].getPosition().y - QUAIS_BAS[i - 1].getPosition().y));
+
+					LIGNE_TRAJET_ALLER.push_back(sf::RectangleShape(sf::Vector2f(norm_vect_haut, 2.f)));
+					LIGNE_TRAJET_RETOUR.push_back(sf::RectangleShape(sf::Vector2f(norm_vect_bas, 2.f)));
+
+
+					float angle_haut = atan((QUAIS_HAUT[i - 1].getPosition().y - QUAIS_HAUT[i].getPosition().y) / (QUAIS_HAUT[i - 1].getPosition().x - QUAIS_HAUT[i].getPosition().x));
+					float angle_bas = atan((QUAIS_BAS[i - 1].getPosition().y - QUAIS_BAS[i].getPosition().y) / (QUAIS_BAS[i - 1].getPosition().x - QUAIS_BAS[i].getPosition().x));
+				
+
+					LIGNE_TRAJET_ALLER.back().setPosition(STATION[i-1].x,STATION[i-1].y-decalage);
+					LIGNE_TRAJET_ALLER.back().setRotation((float)(angle_haut * 180 / PI));
+
+					LIGNE_TRAJET_RETOUR.back().setPosition(STATION[i - 1].x, STATION[i - 1].y + decalage);
+					LIGNE_TRAJET_RETOUR.back().setRotation((float)(angle_bas * 180 / PI));
+				}
+			}
+			else
+			{
+				SPRITE_STATIONS.back().setScale(factor_size_stat, factor_size_stat); //taille
+
+				QUAIS_HAUT.back().setPosition(STATION[i] - sf::Vector2f(0.0, decalage));
+				QUAIS_BAS.back().setPosition(STATION[i] + sf::Vector2f(0.0, decalage));
+
+				// cout << norm_vect << endl;
+
+				float angle = acos((STATION[i].x - STATION[i - 1].x) / norm_vect) * ((STATION[i].y - STATION[i - 1].y) > 0 ? 1 : -1); // à modif en atan
+
+
+				//création des deux lignes séparées
+
+
+				LIGNE_TRAJET_ALLER.push_back(sf::RectangleShape(sf::Vector2f(norm_vect, 2.f)));
+				LIGNE_TRAJET_RETOUR.push_back(sf::RectangleShape(sf::Vector2f(norm_vect, 2.f)));
+
+				LIGNE_TRAJET_ALLER.back().setPosition(STATION[i - 1] - sf::Vector2f(0.0, 25.0));
+				LIGNE_TRAJET_ALLER.back().setRotation((float)(angle * 180 / 3.14));
+
+				LIGNE_TRAJET_RETOUR.back().setPosition(STATION[i - 1] + sf::Vector2f(0.0, 25.0));
+				LIGNE_TRAJET_RETOUR.back().setRotation((float)(angle * 180 / 3.14));
+
+
+				// cout << LIGNE_TRAJET[i-1].getSize().x << "," << LIGNE_TRAJET[i-1].getSize().y << endl;
+			}
 		}
 	}
 
 	Rame R1;
-	R1.speed = 0;
-	R1.acceleration = -15;
+	R1.speed = 2;
 
-	std::thread t1(&Rame::start_move, &R1, std::ref(STATION),decalage);
+	thread t1(&Rame::start_move, &R1, ref(STATION), decalage);
 	t1.detach();
 
 
@@ -151,7 +215,7 @@ int main()
 
 		while (window.pollEvent(event)) // conditions de fermeture de la fenêtre
 		{
-			if ((event.type == Event::KeyPressed && event.key.code == sf::Keyboard::Escape) || event.type == Event::Closed) //si on appuie sur échap ou qu'on ferme la fenêtre
+			if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) || event.type == sf::Event::Closed) //si on appuie sur échap ou qu'on ferme la fenêtre
 			{
 				window.close();
 			}
@@ -162,15 +226,16 @@ int main()
 		window.clear();
 
 		// Draw the sprite
-		for (int i = 0;i < LIGNE_STAT.size();++i)
+		for (int i = 0; i < SPRITE_STATIONS.size(); ++i)
 		{
 
-			if (i != LIGNE_STAT.size() - 1)
+
+			if (i != SPRITE_STATIONS.size() - 1)
 			{
 				window.draw(LIGNE_TRAJET_ALLER[i]);
 				window.draw(LIGNE_TRAJET_RETOUR[i]);
 			}
-			window.draw(LIGNE_STAT[i]);
+			window.draw(SPRITE_STATIONS[i]);
 			window.draw(QUAIS_HAUT[i]);
 			window.draw(QUAIS_BAS[i]);
 		}
