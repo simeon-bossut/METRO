@@ -25,12 +25,10 @@ using namespace std;
 using namespace chrono_literals;
 using namespace sf;
 
-std::mutex myMutex;
 
 // TODO: Référencez ici les en-têtes supplémentaires nécessaires à votre programme.
 
-using namespace std;
-
+std::mutex myMutex;
 sf::Vector2f calcul_position_stat(int i)
 {
 	return sf::Vector2f((float)(75 + 180 * i), (float)(400 + 50 * (i - 4) * cos(2 * i)));
@@ -68,7 +66,7 @@ public:
 	string get_name() { return string(name);  }
 	int get_id() { return id; }
 	void print() {
-		cout << "La station numero "<< id+1 << "a pour nom"<< name<<"\n\n";
+		std::cout << "La station numero "<< id+1 << "a pour nom"<< name<<"\n\n";
 	}
 };
 
@@ -106,6 +104,8 @@ public:
 
 void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 {
+	acceleration *= -1;
+	speed *= -1;
 	while (1)
 	{
 		myMutex.lock();
@@ -117,34 +117,47 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 		{
 			direction = Line[i + 1] - Line[i];
 			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
-			cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
-			while ((abs(position.x - Line[i + 1].x) > 3) || (abs(position.y - Line[i + 1].y + decalage) > 3))
+			std::cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
+			int flag = -1;
+			while ((abs(position.x - Line[i + 1].x) > 0.5) || (abs(position.y - Line[i + 1].y + decalage) > 0.5))
 			{
-				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 1.5s 
+				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 125ms  donc 8px/sec
 				if (speed != 0) {
-					wait_time=sf::milliseconds(min(abs((int)(1000000 / speed) / 1000),1500));
+					wait_time=sf::milliseconds(min(abs((int)(1000000 / speed) / 1000),125));
 				}
 				else
 				{
 					wait_time = sf::milliseconds(20);
 				}
 
+				//std::cout << "distance de" << abs(position.x - abs(Line[i + 1].x + Line[i].x) / 2) << "," << abs(position.y - abs(Line[i + 1].y + Line[i].y) / 2 + decalage);
+				
+				if ((abs(position.x - abs(Line[i + 1].x + Line[i].x) / 2) < 0.5)&&(abs(position.y - abs(Line[i + 1].y + Line[i].y) / 2 + decalage) < 0.5))//arrivé à la moitié,désaccélération
+				{
+					acceleration *= flag;
+					flag = 1;
+				}
+
 				if (speed + acceleration*wait_time.asSeconds() >= 0) {
 					if (speed + acceleration * wait_time.asSeconds() >= max_speed) { speed = max_speed; }
 					else { speed += acceleration * wait_time.asSeconds(); }
 				}
-				cout << "tps_refresh" << wait_time.asMilliseconds() << endl;
-				cout << "speed" << speed << endl << endl;
+				//cout << "tps_refresh" << wait_time.asMilliseconds() << endl;
+				std::cout << "speed" << speed << endl << endl;
 				move();
 				//cout << "Période de " << sf::Int64((float)(1000000 / speed) / 1000) <<endl;
 				sf::sleep(wait_time);//hyper IMPORTANT. La norme du vecteur de mouvement est constante, on change uniquement la période de refresh
 				//exemple. v=50px/s =50px/1000ms-> T(période)=1000/50=20 millisecondes
 			}
-			cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
+
+			acceleration = abs(acceleration);
+			speed = 0.0;
+			std::cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
 			myMutex.lock();
+			position = Line[i+1]+Vector2f(0,-decalage);//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
 			angle = 0.0;
 			myMutex.unlock();
-			sf::sleep(sf::milliseconds(500));
+			sf::sleep(sf::milliseconds(2000));
 		}
 		//std::mutex locked;
 		sf::sleep(sf::milliseconds(1000));
@@ -155,25 +168,51 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 		acceleration *= -1;
 		sf::sleep(sf::milliseconds(1000));
 
-
-		for (int i = Line.size() - 1;i > 0;--i) //Line.size()-1
+		speed = 0;
+		for (int i = Line.size()-1;i>0;--i) 
 		{
-			direction = Line[i - 1] - Line[i];
+			direction = Line[i  -1] - Line[i];
 			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
 			cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i - 1].x << "," << Line[i - 1].y << endl << endl;
-			while ((abs(position.x - Line[i - 1].x) > 3) || (abs(position.y - Line[i - 1].y - decalage) > 3))
+			int flag = -1;
+			while ((abs(position.x - Line[i  -1].x) > 0.5) || (abs(position.y - Line[i - 1].y - decalage) > 0.5))
 			{
-				move();
-				sf::sleep(sf::milliseconds((sf::Int64((float)(1000000 / abs(speed)) / 1000))));
-			}
-			cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
+				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 125ms donc 8px/s 
+				if (speed != 0) {
+					wait_time = sf::milliseconds(min(abs((int)(1000000 / speed) / 1000), 125));
+				}
+				else
+				{
+					wait_time = sf::milliseconds(20);
+				}
+				std::cout << "distance de" << abs(position.x - ((Line[i - 1].x + Line[i].x) / 2)) << "," << abs(position.y - ((Line[i - 1].y + Line[i].y) / 2) - decalage);
+				if ((abs(position.x - (Line[i - 1].x + Line[i].x) / 2) < 0.5) && (abs(position.y - (Line[i - 1].y + Line[i].y) / 2 - decalage) < 0.5))//arrivé à la moitié,désaccélération
+				{
+					acceleration *= flag;
+					flag = 1;
+				}
 
+				if (speed + acceleration * wait_time.asSeconds() <= 0) {
+					if (speed + acceleration * wait_time.asSeconds() <= -max_speed) { speed = max_speed; }
+					else { speed += acceleration * wait_time.asSeconds(); }
+				}
+				std::cout << "speed" << speed << endl << endl;
+				move();
+				//cout << "distance à la station: " << abs((position-Line[i-1]).x* (position - Line[i - 1]).x + (position - Line[i - 1]).y* (position - Line[i - 1]).y)<<endl;
+				//cout << "Période de " << sf::Int64((float)(1000000 / speed) / 1000) <<endl;
+				sf::sleep(wait_time);//hyper IMPORTANT. La norme du vecteur de mouvement est constante, on change uniquement la période de refresh
+				//exemple. v=50px/s =50px/1000ms-> T(période)=1000/50=20 millisecondes
+			}
+			acceleration = -abs(acceleration);
+			speed = 0.0;
+			std::cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
 			myMutex.lock();
 			angle = 0.0;
+			position = Line[i - 1] + Vector2f(0, decalage);//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
 			myMutex.unlock();
-			sf::sleep(sf::milliseconds(500));
+			sf::sleep(sf::milliseconds(2000));
 		}
-		cout << "Finished" << endl;
+		std::cout << "Finished" << endl;
 	}
 }
 

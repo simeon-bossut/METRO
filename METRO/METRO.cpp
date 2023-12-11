@@ -45,6 +45,7 @@ int main()
 
 	//// Load a sprite to display
 
+
 	sf::Texture texture_ram;
 	if (!texture_ram.loadFromFile(ASSETS + "rame2.png"))
 		return EXIT_FAILURE;
@@ -125,7 +126,7 @@ int main()
 
 	Rame R1;
 	R1.speed = 0;
-	R1.acceleration = -15;
+	R1.acceleration = 50;
 
 	std::thread t1(&Rame::start_move, &R1, std::ref(STATION),decalage);
 	t1.detach();
