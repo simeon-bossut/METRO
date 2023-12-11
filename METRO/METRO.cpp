@@ -60,7 +60,7 @@ int main()
 
 	//AFFICHAGE DE LA RAME
 
-	int nb_stat = 10;
+	int nb_stat = 4;
 	sf::Sprite rame(texture_ram);
 	sf::Vector2f rame_size = rame.getGlobalBounds().getSize();
 	rame.setOrigin(rame_size.x / 2, rame_size.y / 2);
@@ -193,7 +193,7 @@ int main()
 	}
 
 	Rame R1;
-	R1.speed = 2;
+	R1.acceleration = 50;
 
 	thread t1(&Rame::start_move, &R1, ref(STATION), decalage);
 	t1.detach();
