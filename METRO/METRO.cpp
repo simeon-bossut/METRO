@@ -83,7 +83,7 @@ int main()
 		SPRITE_STATIONS.push_back(sf::Sprite(texture_stat)); //= sprite +1
 
 		//STATION.push_back(sf::Vector2f((float)(300 + 130 * i), 500)); //= station +1
-		STATION.push_back(sf::Vector2f((float)(300 + 130 * i), (float)(400 + 20 * (i - 4) * cos(2 * i)))); //= station +1
+		STATION.push_back(sf::Vector2f((float)(300 + 130 * i), (float)(400 + 10 * (i - 4) * cos(2 * i)))); //= station +1
 
 		//STATIONS ET QUAIS
 

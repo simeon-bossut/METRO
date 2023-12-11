@@ -91,24 +91,64 @@ X -> personnes_sur_quai -= nb_montee;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-							//distance de sécurité entre les rames
-
-a
+							//distance de sécurité entre les rames (pseudo-code)
 
 
 
 
+while (distance_rame[rame_devant] > sécurité && [distance_station[i] > code déjà fait])
+{
+	[gestion vitesse basique]
+}
 
+if (distance_rame <= sécurité)
+{
+	//enclenchement arrêt urgence (affichage)
+		cout ? affichage stml ?
+	//diminution importante de la vitesse voire arrêt (attention à pas ralentir trop fort non plus)
+	while (vitesse > threshold)
+	{
+		acceleration = -qqchose;
+		vitesse += acceleration; //varier le freinage en fonction de la distance à l'autre rame ?
+	}
+	//ralentissement des rames derrière ? (sera déjà implémenté je suis con)
 
+}
 
+if (distance_rame <= 0)
+{
+	//accident (affichage)
+	//arrêt des autres rames au fur et à mesure (implémenté juste au dessus)
+	//évacuation des rames dans les stations les plus proches ?
+	nb_accident(var_globale) += 1;
+	accident_rame(var_locale) = 1;
+	vitesse(de la rame accidentée) = 0;
+	accélération(de la rame accidentée) = 0;
+}
 
+while (nb_accident != 0) //tant que l'accident n'est pas résolu
+{
+	if (rame dans station)
+	{
+		nb_descente = personnes_dans_rame;
+		personnes_dans_rame = 0;
+		nb_montée = 0;
+		vitesse = 0;
+		accélération = 0;
+	}
+	else
+	{
+		if (distance_station_suivante < distance_rame_suivante)
+		{
+			//avance jusque la station suivante à vitesse réduite
+		}
+		else
+		{
+			//tkt poto
+		}
+	}
 
-
-
-
-
-
-
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
