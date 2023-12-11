@@ -28,10 +28,12 @@ using namespace sf;
 
 // TODO: Référencez ici les en-têtes supplémentaires nécessaires à votre programme.
 
+float PI = 3.14159265358979323846;
+
 std::mutex myMutex;
 sf::Vector2f calcul_position_stat(int i)
 {
-	return sf::Vector2f((float)(75 + 180 * i), (float)(400 + 50 * (i - 4) * cos(2 * i)));
+	return sf::Vector2f((float)(75 + 180 * i), (float)(400 + 50 * (i - 4) * cos(2 * i))); //c'est quoi ce code de merde poto XD
 }
 
 void modif_string(string&text,char swap1,char swap2)
@@ -45,7 +47,7 @@ void modif_string(string&text,char swap1,char swap2)
 	}
 }
 
-
+																//STATION
 
 class Station 
 {
@@ -58,7 +60,7 @@ public:
 	sf::Sprite stat_sprite;
 	const sf::Vector2f position;
 
-	Station(int n_id = -1, string n_name = "Inconnu", sf::Vector2f n_position = sf::Vector2f(0, 0),sf::Sprite sprite=Sprite()) 
+	Station(int n_id = -1, string n_name = "Inconnu", sf::Vector2f n_position = sf::Vector2f(0, 0),sf::Sprite sprite = sf::Sprite()) 
 	:id(n_id), name(n_name), position(n_position),stat_sprite(sprite) {}
 
 	void set_id(int& n_id) { id = n_id; }
@@ -69,6 +71,11 @@ public:
 		std::cout << "La station numero "<< id+1 << "a pour nom"<< name<<"\n\n";
 	}
 };
+
+
+
+																//RAME
+
 
 class Rame {
 
@@ -93,7 +100,7 @@ public:
 
 	double angle;
 
-	Rame(int n_id = -1,sf::Sprite sprite=Sprite(), float n_speed = 0.0, sf::Vector2f pos = sf::Vector2f(), sf::Vector2f dir = sf::Vector2f(), double st_angle = 0.0, float n_acc = 0.f,float max_vit=150.0)
+	Rame(int n_id = -1, sf::Sprite sprite = sf::Sprite(), float n_speed = 0.0, sf::Vector2f pos = sf::Vector2f(), sf::Vector2f dir = sf::Vector2f(), double st_angle = 0.0, float n_acc = 0.f, float max_vit = 150.0)
 		:position(pos), direction(dir), id(n_id), speed(n_speed), angle(st_angle),acceleration(n_acc),ram_sprite(sprite),max_speed(max_vit) {}
 
 	void move();
@@ -109,7 +116,7 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 	while (1)
 	{
 		myMutex.lock();
-		position = Line[0] + Vector2f(0, -decalage);
+		position = Line[0] + sf::Vector2f(0, -decalage);
 		myMutex.unlock();
 		speed *= -1;
 		acceleration *= -1;
@@ -154,7 +161,7 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 			speed = 0.0;
 			std::cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
 			myMutex.lock();
-			position = Line[i+1]+Vector2f(0,-decalage);//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
+			position = Line[i+1]+sf::Vector2f(0,-decalage);//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
 			angle = 0.0;
 			myMutex.unlock();
 			sf::sleep(sf::milliseconds(2000));
@@ -162,7 +169,7 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 		//std::mutex locked;
 		sf::sleep(sf::milliseconds(1000));
 		myMutex.lock();
-		position = Line[Line.size() - 1] + Vector2f(0, decalage);
+		position = Line[Line.size() - 1] + sf::Vector2f(0, decalage);
 		myMutex.unlock();
 		speed *= -1;
 		acceleration *= -1;
@@ -233,6 +240,10 @@ void Rame::move() {
 
 
 
+																	//QUAI
+
+
+
 class Quai
 {
 public:
@@ -244,7 +255,7 @@ public:
 };
 
 
-
+																	//SYSTEM
 
 
 class System
@@ -266,7 +277,7 @@ public:
 			if (Name_Stat.peek()!='\n'&&!Name_Stat.eof()) { Name_Stat >> Name; }
 			else { Name = "Inconnu";}
 			modif_string(Name,'/',' ');
-			LIGNE.push_back(Station(i+1,Name,calcul_position_stat(i),Sprite(text_stat)));
+			LIGNE.push_back(Station(i+1,Name,calcul_position_stat(i),sf::Sprite(text_stat)));
 
 		}
 	}
