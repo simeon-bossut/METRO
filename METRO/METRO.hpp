@@ -32,7 +32,7 @@ float PI = 3.14159265358979323846;
 
 sf::Vector2f calcul_position_stat(int i)
 {
-	return sf::Vector2f((float)(75 + 180 * i), (float)(400 + 50 * (i - 4) * cos(2 * i)));
+	return sf::Vector2f((float)(75 + 180 * i), (float)(400 + 50 * (i - 4) * cos(2 * i))); //c'est quoi ce code de merde poto XD
 }
 
 void modif_string(string&text,char swap1,char swap2)
@@ -46,7 +46,7 @@ void modif_string(string&text,char swap1,char swap2)
 	}
 }
 
-
+																//STATION
 
 class Station 
 {
@@ -70,6 +70,11 @@ public:
 		cout << "La station numero "<< id+1 << "a pour nom"<< name<<"\n\n";
 	}
 };
+
+
+
+																//RAME
+
 
 class Rame {
 
@@ -115,8 +120,10 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 		for (int i = 0;i < Line.size() - 1;++i) //Line.size()-1
 		{
 			direction = Line[i + 1] - Line[i];
-			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
+			angle = atan((direction.y / direction.x) * (direction.y * direction.x > 0 ? 1 : -1));
+
 			cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
+
 			while ((abs(position.x - Line[i + 1].x) > 3) || (abs(position.y - Line[i + 1].y + decalage) > 3))
 			{
 				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 1.5s 
@@ -193,6 +200,10 @@ void Rame::move() {
 
 
 
+																	//QUAI
+
+
+
 class Quai
 {
 public:
@@ -204,7 +215,7 @@ public:
 };
 
 
-
+																	//SYSTEM
 
 
 class System

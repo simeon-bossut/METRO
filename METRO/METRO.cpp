@@ -4,7 +4,8 @@ using namespace std;
 
 int main()
 {
-
+	srand(std::time(nullptr));
+	int delai_1_personne = 0.2; //temps par personne
 
 	string file_name = "biblio_nom_stat.txt";
 	//*cout << "Quel est le nom du fichier voulu ? (sans espace svp) \n\n";
@@ -56,13 +57,16 @@ int main()
 //System M(file_name,10,texture_ram,texture_stat);
 //M.print();
 
+
+	//AFFICHAGE DE LA RAME
+
 	int nb_stat = 10;
 	sf::Sprite rame(texture_ram);
 	sf::Vector2f rame_size = rame.getGlobalBounds().getSize();
 	rame.setOrigin(rame_size.x / 2, rame_size.y / 2);
 	rame.setScale(0.25, 0.25);
 
-
+	//AFFICHAGE STATIONS ET LIGNES
 	vector<sf::Sprite> SPRITE_STATIONS;
 	vector<sf::CircleShape> QUAIS_HAUT;
 	vector<sf::CircleShape> QUAIS_BAS;
@@ -71,14 +75,15 @@ int main()
 	vector<sf::RectangleShape> LIGNE_TRAJET_RETOUR;
 	vector<sf::Vector2f> STATION; //position des stations
 
-	float decalage = 25.0;
-	float factor_size_stat = 0.1;
+	float decalage = 25.0; //espace ligne du haut et ligne du bas
+	float factor_size_stat = 0.1; //redimension
 
-	for (int i = 0; i < nb_stat; ++i)				//ATTENTION : ajout des stations 0 et max (stations de transition) -> nb_stat+2
+	for (int i = 0; i < nb_stat; ++i)
 	{
-		SPRITE_STATIONS.push_back(sf::Sprite(texture_stat)); //sprite +1
+		SPRITE_STATIONS.push_back(sf::Sprite(texture_stat)); //= sprite +1
 
-		STATION.push_back(sf::Vector2f((float)(300 + 130 * i), (float)(550 + 50 * (i - 4) * cos(2 * i)))); // station +1
+		//STATION.push_back(sf::Vector2f((float)(300 + 130 * i), 500)); //= station +1
+		STATION.push_back(sf::Vector2f((float)(300 + 130 * i), (float)(400 + 20 * (i - 4) * cos(2 * i)))); //= station +1
 
 		//STATIONS ET QUAIS
 
@@ -86,16 +91,16 @@ int main()
 		SPRITE_STATIONS.back().setPosition(STATION[i].x, STATION[i].y); //position
 
 		QUAIS_HAUT.push_back(sf::CircleShape(10.f)); //quai_haut +1
-		QUAIS_HAUT.back().setOrigin(10, 10);
+		QUAIS_HAUT.back().setOrigin(10, 10); //position
 
 		QUAIS_BAS.push_back(sf::CircleShape(10.f)); //quai_bas +1
-		QUAIS_BAS.back().setOrigin(10, 10);
+		QUAIS_BAS.back().setOrigin(10, 10); //position
 
-		if (i == 0 || i == nb_stat - 1)
+		if (i == 0 || i == nb_stat - 1) //si premiere ou derniere station
 		{
-			SPRITE_STATIONS.back().setScale(0, 0); //taille
+			SPRITE_STATIONS.back().setScale(0, 0); //on fait disparaître la station
 
-			QUAIS_HAUT.back().setPosition(STATION[i]);
+			QUAIS_HAUT.back().setPosition(STATION[i]); //quai haut et bas confondus
 			QUAIS_BAS.back().setPosition(STATION[i]);
 		}
 
@@ -198,30 +203,16 @@ int main()
 	{
 		//Process events
 		sf::Event event;
-		//while (window.pollEvent(event))
-		//{
-		//	// on regarde le type de l'évènement...
-		//	switch (event.type)
-		//	{
-		//		// fenêtre fermée
-		//	case sf::Event::Closed:
-		//		window.close();
-		//		break;
-		//		// on ne traite pas les autres types d'évènements
-		//	default:
-		//		break;
-		//	}
-		//}
 
 		while (window.pollEvent(event)) // conditions de fermeture de la fenêtre
 		{
 			if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) || event.type == sf::Event::Closed) //si on appuie sur échap ou qu'on ferme la fenêtre
 			{
-				window.close();
+				window.close(); //fermeture de la fenetre
 			}
 		}
 
-		sf::sleep(sf::milliseconds(10));
+		sf::sleep(sf::milliseconds(10)); //mise à jour de l'écran toutes les 10 millisecondes
 		// Clear screen
 		window.clear();
 

@@ -13,27 +13,35 @@ création station 0 et max :
 
 
 
+
+
+
+						V = fait	/	 X = à faire
+
+
+
+
 /*
 à mettre dans le main :
 
-srand(std::time(nullptr));
+V -> srand(std::time(nullptr));
 
 */
 
 
-int delai_1_personne = 0.2; //temps par personne
-int delai_attente = delai_1_personne*(nb_descente + nb_montee);
+V -> int delai_1_personne = 0.2; //temps par personne
+X -> int delai_attente = delai_1_personne*(nb_descente + nb_montee);
 
-int capa_max_rame = 200; //capacité max de la rame
-int capa_max_quai = 500; //capacité max de la station
-
-
-int personnes_dans_rame = 0; //nb de personnes actuellement dans la rame (max : 200)
-int personnes_sur_quai = 0; //nb de personnes actuellement sur le quai (max : 500)
+X -> int capa_max_rame = 200; //capacité max de la rame
+X -> int capa_max_quai = 500; //capacité max de la station
 
 
-int nb_descente = 0; //nb de personnes qui descendent de la rame (entre 0 et nb actuel de personnes dans la rame)
-int nb_montee = 0; //nb de personnes qui montent dans la rame (min(capa_max_rame - personnes_dans_rame, personnes_sur_quai))
+X -> int personnes_dans_rame = 0; //nb de personnes actuellement dans la rame (max : 200)
+X -> int personnes_sur_quai = 0; //nb de personnes actuellement sur le quai (max : 500)
+
+
+X -> int nb_descente = 0; //nb de personnes qui descendent de la rame (entre 0 et nb actuel de personnes dans la rame)
+X -> int nb_montee = 0; //nb de personnes qui montent dans la rame (min(capa_max_rame - personnes_dans_rame, personnes_sur_quai))
 
 
 
@@ -45,23 +53,23 @@ int nb_montee = 0; //nb de personnes qui montent dans la rame (min(capa_max_rame
 /!\ utiliser un thread ? /!\
 
 
-int diff_quai = 0; //capa_max_quai - personnes_sur_quai
+X -> int diff_quai = 0; //capa_max_quai - personnes_sur_quai
 
-toutes les "rand(1 à 10 secondes)" : 
+X -> toutes les "rand(1 à 10 secondes)" : 
 
-	if (personnes_sur_quai < capa_max_quai) //tant que le quai n'est pas plein, on continue de le remplir
-	{
-		diff_quai = capa_max_quai - personnes_sur_quai; //on regarde le monbre de places libres restantes sur le quai
-
-		if (diff_quai < 10) si il reste moins de 10 places libres sur le quai, on fait attention à pas dépasser la capa max
-		{
-			personnes_sur_quai += rand() % (10-diff_quai);
-		}
-		else
-		{
-			personnes_sur_quai += rand() % 10;
-		}
-	}
+X -> 	if (personnes_sur_quai < capa_max_quai) //tant que le quai n'est pas plein, on continue de le remplir
+X -> 	{
+X -> 		diff_quai = capa_max_quai - personnes_sur_quai; //on regarde le monbre de places libres restantes sur le quai
+X -> 
+X -> 		if (diff_quai < 10) si il reste moins de 10 places libres sur le quai, on fait attention à pas dépasser la capa max
+X -> 		{
+X -> 			personnes_sur_quai += rand() % (10-diff_quai);
+X -> 		}
+X -> 		else
+X -> 		{
+X -> 			personnes_sur_quai += rand() % 10;
+X -> 		}
+X -> 	}
 
 ]
 
@@ -72,12 +80,34 @@ toutes les "rand(1 à 10 secondes)" :
 								//personnes_sur_quai += rand() % (capa_max_quai - personnes_sur_quai);
 
 
-nb_descente = rand() % personnes_dans_rame;
-personnes_dans_rame -= nb_descente;
+X -> nb_descente = rand() % personnes_dans_rame;
+X -> personnes_dans_rame -= nb_descente;
 
-nb_montee = min(capa_max_rame - personnes_dans_rame, personnes_sur_quai);
-personnes_dans_rame += nb_montee;
-personnes_sur_quai -= nb_montee;
+X -> nb_montee = min(capa_max_rame - personnes_dans_rame, personnes_sur_quai);
+X -> personnes_dans_rame += nb_montee;
+X -> personnes_sur_quai -= nb_montee;
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+							//distance de sécurité entre les rames
+
+a
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
