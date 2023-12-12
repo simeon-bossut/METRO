@@ -119,17 +119,21 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 	while (1)
 	{
 		myMutex.lock();
-		position = Line[0] + sf::Vector2f(0, -decalage);
+		position = Line[0];
 		myMutex.unlock();
 		speed *= -1;
 		acceleration *= -1;
 		for (int i = 0;i < Line.size() - 1;++i) //Line.size()-1
 		{
-			direction = Line[i + 1] - Line[i];
-			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
+			//direction = Line[i + 1]-sf::Vector2f(0,decalage) - position;
+			
 			std::cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
 			int flag = -1;
-			while ((abs(position.x - Line[i + 1].x) > 0.5) || (abs(position.y - Line[i + 1].y + decalage) > 0.5))
+			Vector2f PointOrig((i != 0) ? Line[i] - Vector2f(0, decalage) : Line[0]);//permet de bien organiser les points de départs et d'arrivée de chaque trajet
+			Vector2f PointDest((i != Line.size() - 2) ? Line[i+1] - Vector2f(0, decalage) : Line[Line.size() - 1]);
+			direction = PointDest - PointOrig;
+			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
+			while ((abs(PointDest.x - position.x) > 0.5) || (abs(PointDest.y - position.y) > 0.5))
 			{
 				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 125ms  donc 8px/sec
 				if (speed != 0) {
@@ -140,9 +144,9 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 					wait_time = sf::milliseconds(20);
 				}
 
-				//std::cout << "distance de" << abs(position.x - abs(Line[i + 1].x + Line[i].x) / 2) << "," << abs(position.y - abs(Line[i + 1].y + Line[i].y) / 2 + decalage);
+				//std::cout << "distance de" << abs(position.x - (PointA.x + PointB.x) / 2) << "," << abs(position.y - (PointB.y + PointB.y) / 2);
 				
-				if ((abs(position.x - abs(Line[i + 1].x + Line[i].x) / 2) < 0.5)&&(abs(position.y - abs(Line[i + 1].y + Line[i].y) / 2 + decalage) < 0.5))//arrivé à la moitié,désaccélération
+				if ((abs(position.x - (PointOrig.x + PointDest.x) / 2) < 0.5)&&(abs(position.y - (PointDest.y + PointOrig.y) / 2) < 0.5))//arrivé à la moitié,désaccélération
 				{
 					acceleration *= flag;
 					flag = 1;
@@ -164,16 +168,13 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 			speed = 0.0;
 			std::cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
 			myMutex.lock();
-			position = Line[i+1]+sf::Vector2f(0,-decalage);//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
+			position = PointDest;//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
 			angle = 0.0;
 			myMutex.unlock();
 			sf::sleep(sf::milliseconds(2000));
 		}
 		//std::mutex locked;
 		sf::sleep(sf::milliseconds(1000));
-		myMutex.lock();
-		position = Line[Line.size() - 1] + sf::Vector2f(0, decalage);
-		myMutex.unlock();
 		speed *= -1;
 		acceleration *= -1;
 		sf::sleep(sf::milliseconds(1000));
@@ -185,7 +186,13 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
 			cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i - 1].x << "," << Line[i - 1].y << endl << endl;
 			int flag = -1;
-			while ((abs(position.x - Line[i  -1].x) > 0.5) || (abs(position.y - Line[i - 1].y - decalage) > 0.5))
+
+			Vector2f PointOrig((i != Line.size()-1 ? Line[i] + Vector2f(0, decalage) : Line[Line.size()-1]));//permet de bien organiser les points de départs et d'arrivée de chaque trajet
+			Vector2f PointDest((i != 1) ? Line[i -1] + Vector2f(0, decalage) : Line[0]);
+			direction = PointDest - PointOrig;
+			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
+
+			while ((abs(position.x - PointDest.x) > 0.5) || (abs(position.y - PointDest.y) > 0.5))
 			{
 				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 125ms donc 8px/s 
 				if (speed != 0) {
@@ -195,8 +202,8 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 				{
 					wait_time = sf::milliseconds(20);
 				}
-				std::cout << "distance de" << abs(position.x - ((Line[i - 1].x + Line[i].x) / 2)) << "," << abs(position.y - ((Line[i - 1].y + Line[i].y) / 2) - decalage);
-				if ((abs(position.x - (Line[i - 1].x + Line[i].x) / 2) < 0.5) && (abs(position.y - (Line[i - 1].y + Line[i].y) / 2 - decalage) < 0.5))//arrivé à la moitié,désaccélération
+				//std::cout << "distance de" << abs(position.x - ((Line[i - 1].x + Line[i].x) / 2)) << "," << abs(position.y - ((Line[i - 1].y + Line[i].y) / 2) - decalage);
+				if ((abs(position.x - (PointDest.x + PointOrig.x) / 2) < 0.5) && (abs(position.y - (PointDest.y + PointOrig.y) / 2 ) < 0.5))//arrivé à la moitié,désaccélération
 				{
 					acceleration *= flag;
 					flag = 1;
@@ -218,7 +225,7 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 			std::cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
 			myMutex.lock();
 			angle = 0.0;
-			position = Line[i - 1] + sf::Vector2f(0, decalage);//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
+			position = PointDest;//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
 			myMutex.unlock();
 			sf::sleep(sf::milliseconds(2000));
 		}
