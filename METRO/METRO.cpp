@@ -60,7 +60,7 @@ int main()
 
 	//AFFICHAGE DE LA RAME
 
-	int nb_stat = 4;
+	int nb_stat = 5;
 	sf::Sprite rame(texture_ram);
 	sf::Vector2f rame_size = rame.getGlobalBounds().getSize();
 	rame.setOrigin(rame_size.x / 2, rame_size.y / 2);
@@ -82,8 +82,8 @@ int main()
 	{
 		SPRITE_STATIONS.push_back(sf::Sprite(texture_stat)); //= sprite +1
 
-		//STATION.push_back(sf::Vector2f((float)(300 + 130 * i), 500)); //= station +1
-		STATION.push_back(sf::Vector2f((float)(300 + 130 * i), (float)(400 + 10 * (i - 4) * cos(2 * i)))); //= station +1
+		//STATION.push_back(sf::Vector2f((float)(300 + 130 * i), 500)); // = station +1
+		STATION.push_back(sf::Vector2f((float)(100 + 400 * i), (float)(400 + 20 * (i - 4) * cos(2 * i)))); // = station +1 (positions modifiables ozef)
 
 		//STATIONS ET QUAIS
 

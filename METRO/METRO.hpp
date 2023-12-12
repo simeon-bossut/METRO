@@ -129,8 +129,8 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 			
 			std::cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
 			int flag = -1;
-			Vector2f PointOrig((i != 0) ? Line[i] - Vector2f(0, decalage) : Line[0]);//permet de bien organiser les points de départs et d'arrivée de chaque trajet
-			Vector2f PointDest((i != Line.size() - 2) ? Line[i+1] - Vector2f(0, decalage) : Line[Line.size() - 1]);
+			sf::Vector2f PointOrig((i != 0) ? Line[i] - sf::Vector2f(0, decalage) : Line[0]);//permet de bien organiser les points de départs et d'arrivée de chaque trajet
+			sf::Vector2f PointDest((i != Line.size() - 2) ? Line[i+1] - sf::Vector2f(0, decalage) : Line[Line.size() - 1]);
 			direction = PointDest - PointOrig;
 			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
 			while ((abs(PointDest.x - position.x) > 0.5) || (abs(PointDest.y - position.y) > 0.5))
@@ -187,8 +187,8 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 			cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i - 1].x << "," << Line[i - 1].y << endl << endl;
 			int flag = -1;
 
-			Vector2f PointOrig((i != Line.size()-1 ? Line[i] + Vector2f(0, decalage) : Line[Line.size()-1]));//permet de bien organiser les points de départs et d'arrivée de chaque trajet
-			Vector2f PointDest((i != 1) ? Line[i -1] + Vector2f(0, decalage) : Line[0]);
+			sf::Vector2f PointOrig((i != Line.size()-1 ? Line[i] + sf::Vector2f(0, decalage) : Line[Line.size()-1]));//permet de bien organiser les points de départs et d'arrivée de chaque trajet
+			sf::Vector2f PointDest((i != 1) ? Line[i -1] + sf::Vector2f(0, decalage) : Line[0]);
 			direction = PointDest - PointOrig;
 			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
 

@@ -22,7 +22,7 @@ création station 0 et max :
 
 
 /*
-à mettre dans le main :
+à mettre dans le main : (ok)
 
 		ok-> srand(std::time(nullptr));
 
