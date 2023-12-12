@@ -9,14 +9,14 @@ création station 0 et max :
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-						//personnes dans les rames
+						//gestion personnes (semi-codé, il reste des trucs à améliorer dans ce que j'ai fait)
 
 
 
 
 
 
-						V = fait	/	 X = à faire
+						ok = fait	/	  = à faire
 
 
 
@@ -24,24 +24,27 @@ création station 0 et max :
 /*
 à mettre dans le main :
 
-V -> srand(std::time(nullptr));
+		ok-> srand(std::time(nullptr));
 
 */
 
 
-V -> int delai_1_personne = 0.2; //temps par personne
-X -> int delai_attente = delai_1_personne*(nb_descente + nb_montee);
+		ok-> float delai_1_personne = 0.2; //temps par personne
 
-X -> int capa_max_rame = 200; //capacité max de la rame
-X -> int capa_max_quai = 500; //capacité max de la station
+->	float delai_attente() {													/!\ pas encore implémenté
+->		return (delai_1_personne * (nb_descente + nb_montee));				/!\ pas encore implémenté
+->	}																		/!\ pas encore implémenté
+
+		ok-> int capa_max_rame = 200; //capacité max de la rame
+		ok-> int capa_max_quai = 500; //capacité max de la station
 
 
-X -> int personnes_dans_rame = 0; //nb de personnes actuellement dans la rame (max : 200)
-X -> int personnes_sur_quai = 0; //nb de personnes actuellement sur le quai (max : 500)
+		ok-> int nb_personnes_dans_rame = 0; //nb de personnes actuellement dans la rame (max : 200)
+		ok-> int personnes_sur_quai = 0; //nb de personnes actuellement sur le quai (max : 500)
 
 
-X -> int nb_descente = 0; //nb de personnes qui descendent de la rame (entre 0 et nb actuel de personnes dans la rame)
-X -> int nb_montee = 0; //nb de personnes qui montent dans la rame (min(capa_max_rame - personnes_dans_rame, personnes_sur_quai))
+		ok-> int nb_descente = 0; //nb de personnes qui descendent de la rame (entre 0 et nb actuel de personnes dans la rame)
+-> int nb_montee = 0; //nb de personnes qui montent dans la rame (min(capa_max_rame - personnes_dans_rame, personnes_sur_quai))				/!\ pas encore implémenté
 
 
 

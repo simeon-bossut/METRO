@@ -23,7 +23,6 @@
 
 using namespace std;
 using namespace chrono_literals;
-using namespace sf;
 
 
 // TODO: Référencez ici les en-têtes supplémentaires nécessaires à votre programme.
@@ -76,12 +75,16 @@ public:
 
 																//RAME
 
+int capa_max_rame = 200; //à modifier si besoin
+
 
 class Rame {
 
 private:
 	int id;
-   
+	int nb_personnes_dans_rame = 0;
+	int nb_descente = 0;
+
 public:
 
 	sf::Sprite ram_sprite;
@@ -215,7 +218,7 @@ void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
 			std::cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
 			myMutex.lock();
 			angle = 0.0;
-			position = Line[i - 1] + Vector2f(0, decalage);//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
+			position = Line[i - 1] + sf::Vector2f(0, decalage);//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
 			myMutex.unlock();
 			sf::sleep(sf::milliseconds(2000));
 		}
@@ -242,16 +245,17 @@ void Rame::move() {
 
 																	//QUAI
 
-
+int capa_max_quai = 500; //à modifier si besoin
 
 class Quai
 {
 public:
 	int ligne;
 	Quai(int line) :ligne(line) {}
-	int nb_pers = 0;
-	void set_nb_pers(int& nb) { nb_pers = nb; }
-	int get_nb_pers() { return nb_pers; }
+
+	int nb_personnes_sur_quai = 0;
+	void set_nb_pers(int& nb) { nb_personnes_sur_quai = nb; }
+	int get_nb_pers() { return nb_personnes_sur_quai; }
 };
 
 
