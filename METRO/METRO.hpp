@@ -159,12 +159,16 @@ public:
 
 																//RAME
 
+int capa_max_rame = 200; //à modifier si besoin
+
 
 class Rame {
 
 private:
 	int id;
-   
+	int nb_personnes_dans_rame = 0;
+	int nb_descente = 0;
+
 public:
 
 	//sf::Sprite ram_sprite;
@@ -363,9 +367,10 @@ class Quai
 public:
 	int ligne;
 	Quai(int line) :ligne(line) {}
-	int nb_pers = 0;
-	void set_nb_pers(int& nb) { nb_pers = nb; }
-	int get_nb_pers() { return nb_pers; }
+
+	int nb_personnes_sur_quai = 0;
+	void set_nb_pers(int& nb) { nb_personnes_sur_quai = nb; }
+	int get_nb_pers() { return nb_personnes_sur_quai; }
 };
 
 
