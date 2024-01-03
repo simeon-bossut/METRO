@@ -3,10 +3,10 @@
 #
 Project ("VAL Modélisation (LOCAL)")
 # Ajoutez une source à l'exécutable de ce projet.
-add_executable (CMakeTarget "METRO.cpp" "METRO.cpp")
+add_executable (LE_VAL "METRO.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET CMakeTarget PROPERTY CXX_STANDARD 20)
+  set_property(TARGET LE_VAL PROPERTY CXX_STANDARD 20)
 endif()
 
 # TODO: Ajoutez des tests et installez des cibles si nécessaire.

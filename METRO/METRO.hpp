@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <functional>
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -28,13 +29,95 @@ using namespace sf;
 
 // TODO: Référencez ici les en-têtes supplémentaires nécessaires à votre programme.
 
-float PI = 3.14159265358979323846;
+double PI = 3.14159265358979323846;
+
+const Vector2f Position_start(-100, -100);
 
 std::mutex myMutex;
+
 sf::Vector2f calcul_position_stat(int i)
 {
 	return sf::Vector2f((float)(75 + 180 * i), (float)(400 + 50 * (i - 4) * cos(2 * i))); //c'est quoi ce code de merde poto XD
 }
+
+float dist(sf::Vector2f A, sf::Vector2f B)
+{
+	return sqrt((A.x - B.x) * (A.x - B.x) + (A.y - B.y) * (A.y - B.y));
+}
+
+
+
+class Ligne
+{
+public:
+	std::vector<sf::Vector2f> ligne;
+	Vector2f decalage;
+	std::vector<unsigned int> quais;
+	const unsigned int max_passager_quai;
+	Ligne(int size=0, Vector2f dec=Vector2f(0,0),const int max_pass_q=120) :ligne(std::vector<sf::Vector2f>(size)), decalage(dec) , quais(std::vector<unsigned int>(2*size-2)),max_passager_quai(max_pass_q) {}
+	Ligne(std::vector<sf::Vector2f> line, Vector2f dec, const int max_pass_q = 120) :ligne(line), decalage(dec), quais(std::vector<unsigned int>(2*line.size()-2)), max_passager_quai(max_pass_q) {}
+
+
+	void Gestion_nouv_passager(bool&Run)
+	{
+		std::mutex my_mutex;
+		std::default_random_engine generator;
+		std::uniform_int_distribution<unsigned int> distribution(0,2);
+		//srand(time(NULL));
+		sf::Clock clock;
+		while (Run)
+		{
+			sf::sleep(sf::seconds(1));
+			for(int i=1;i<ligne.size()-2;++i){//on ne prend pas le quai 0 et le (fin de ligne1)-1
+				my_mutex.lock();
+				quais[i] = min(quais[i] + distribution(generator), max_passager_quai);
+				my_mutex.unlock();
+			}
+			for (int i = ligne.size();i < quais.size()-1;++i) {//on ne prend pas le(fin de ligne2)-1
+				my_mutex.lock();
+				quais[i] = min(quais[i] + distribution(generator), max_passager_quai);
+				my_mutex.unlock();
+			}
+			if (clock.getElapsedTime() >= sf::seconds(5)) {
+				//show_quais();
+				clock.restart();
+			}
+		}
+	}
+
+	void show_quais()
+	{
+		std::mutex my_mutex;
+		myMutex.lock();
+		cout << endl;
+		for (int i = 0;i < quais.size();++i)
+		{
+			cout << quais[i] << " ";
+			if (i == ligne.size() - 1) { cout << endl; }
+		}
+		myMutex.unlock();
+	}
+
+
+	sf::Vector2f operator[](int indice)//idée d'aller de 0 jusqu'à 2*size
+	{
+		indice %= (2 * ligne.size() - 2);
+		float div = (float)indice/(ligne.size()-1);
+		if (div == (int)div)//division entière donc à des noeuds de changement de ligne 
+		{
+			return ligne[indice];
+		}
+		if (div < 1)//ligne 1/aller
+		{
+			return ligne[indice] - decalage;
+		}
+		if (div > 1)
+		{
+			return ligne[2*(ligne.size() - 1)-indice] + decalage;
+		}
+	}
+};
+
 
 void modif_string(string&text,char swap1,char swap2)
 {
@@ -84,7 +167,7 @@ private:
    
 public:
 
-	sf::Sprite ram_sprite;
+	//sf::Sprite ram_sprite;
 
 	vector<int> destination;//Tableau qui contient le nombre de personnes par destination. Exemple: 12 personnes vont descendre à la station 3 destination[3]=12 
 
@@ -94,155 +177,179 @@ public:
 
 	sf::Vector2f position;
 
-	float speed;
+	double speed;
 
 	const float max_speed;
 
 	double angle;
 
-	Rame(int n_id = -1, sf::Sprite sprite = sf::Sprite(), float n_speed = 0.0, sf::Vector2f pos = sf::Vector2f(), sf::Vector2f dir = sf::Vector2f(), double st_angle = 0.0, float n_acc = 0.f, float max_vit = 150.0)
-		:position(pos), direction(dir), id(n_id), speed(n_speed), angle(st_angle),acceleration(n_acc),ram_sprite(sprite),max_speed(max_vit) {}
+	int precedente_station;
 
-	void move();
+	const unsigned int max_passagers;
 
-	void start_move(const std::vector<sf::Vector2f>& Line,float decalage);
+	unsigned int passagers;
 
+	int emergency_stop;//0 si pas d'arrêt, 1 si arrêt provoqué par la rame suivante , 2 si arrêt mannuel d'urgence
+
+	Rame(int n_id = -1, sf::Vector2f pos = Position_start, sf::Vector2f dir = sf::Vector2f(), double st_angle = 0.0, float n_acc = 15.f, float max_vit = 80, int pre_stat = 0,int pass=0)
+		:position(pos), direction(dir), id(n_id), speed(0.0), angle(st_angle), acceleration(n_acc), max_speed(max_vit), precedente_station(pre_stat),passagers(pass),max_passagers(80),emergency_stop(0){}
+
+	void move(sf::Time wait_time);
+
+	void start_move(std::vector<Rame>&RAMES,Ligne&LIGNE, bool& Run);
+
+	void set_id(int n_id) {
+		id = n_id;
+	}
+
+	int get_id()
+	{
+		return id;
+	}
+
+	double dist_to_next(vector<Rame>& RAMES,Ligne& LIGNE)//calcule la distance avec la prochaine Rame
+	{
+		int true_size= 0;
+		while ((true_size<RAMES.size())&&(RAMES[true_size].get_id() != -1)) { ++true_size; }//calcul du nombre réel de rames en circulation
+		
+		if (true_size == 1) { return -1.0; }
+		int id = get_id();
+		int ind_next((get_id() > 1) ? get_id() - 2 : true_size - 1);
+		Rame next(RAMES[ind_next]);
+
+		if ((precedente_station == next.precedente_station))
+		{
+			return dist(position, next.position);
+		}
+
+		double result = 0.0;
+		result += dist(position, LIGNE[precedente_station + 1]);
+		result += dist(LIGNE[next.precedente_station], next.position);
+		if ((next.precedente_station - precedente_station == 1) || (next.precedente_station - precedente_station == 1 - LIGNE.quais.size()))
+		{
+			return result;
+		}
+		int i = precedente_station + 1;
+		while (i != next.precedente_station) {
+			result += dist(LIGNE[i],LIGNE[i+1]);
+			i = (i + 1) % LIGNE.quais.size();
+		}
+		
+		
+		return result;
+	}
+	
 };
 
-void Rame::start_move(const std::vector<sf::Vector2f>& Line,float decalage)
+
+void Rame::start_move( std::vector<Rame>& RAMES,Ligne & LIGNE, bool& Run)
 {
-	acceleration *= -1;
-	speed *= -1;
-	while (1)
+	myMutex.lock();
+	position = LIGNE[0];
+	myMutex.unlock();
+	while (Run)
 	{
-		myMutex.lock();
-		position = Line[0];
-		myMutex.unlock();
-		speed *= -1;
-		acceleration *= -1;
-		for (int i = 0;i < Line.size() - 1;++i) //Line.size()-1
+		if (emergency_stop == 0)
 		{
-			//direction = Line[i + 1]-sf::Vector2f(0,decalage) - position;
-			
-			std::cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i + 1].x << "," << Line[i + 1].y << endl << endl;
-			int flag = -1;
-			Vector2f PointOrig((i != 0) ? Line[i] - Vector2f(0, decalage) : Line[0]);//permet de bien organiser les points de départs et d'arrivée de chaque trajet
-			Vector2f PointDest((i != Line.size() - 2) ? Line[i+1] - Vector2f(0, decalage) : Line[Line.size() - 1]);
-			direction = PointDest - PointOrig;
-			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
-			while ((abs(PointDest.x - position.x) > 0.5) || (abs(PointDest.y - position.y) > 0.5))
+			int i = precedente_station;
+			if (position == LIGNE[precedente_station])
 			{
-				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 125ms  donc 8px/sec
-				if (speed != 0) {
-					wait_time=sf::milliseconds(min(abs((int)(1000000 / speed) / 1000),125));
-				}
-				else
+				if (i + 1 % (LIGNE.ligne.size() - 1) != 0)
 				{
-					wait_time = sf::milliseconds(20);
+					int descending_passengers = passagers * ((float)1 / (LIGNE.ligne.size() - 1 - i % (LIGNE.ligne.size() - 1)));
+					passagers *= (1 - ((float)1 / (LIGNE.ligne.size() - 1 - i % (LIGNE.ligne.size() - 1))));
+					sf::sleep(sf::milliseconds(15 * descending_passengers));
 				}
 
-				//std::cout << "distance de" << abs(position.x - (PointA.x + PointB.x) / 2) << "," << abs(position.y - (PointB.y + PointB.y) / 2);
+				int incoming_passengers = min(max_passagers - passagers, LIGNE.quais[i]);//le min entre la place disponible
+				passagers += incoming_passengers;
+				LIGNE.quais[i] -= incoming_passengers;
+				sf::sleep(sf::milliseconds(15 * incoming_passengers));
+			}
+
+			int flag = -1;
+			Vector2f PointOrig = position;
+			Vector2f PointDest = LIGNE[i + 1];
+
+			direction = (PointDest - PointOrig) / dist(PointOrig, PointDest);
+
+			angle = atan(direction.y / direction.x);
+
+			double dist_freinage = min(abs(max_speed * max_speed / (2 * acceleration)), dist(PointOrig, PointDest) / 2);
+
+			float epsilon = 3;
+			//sf::Clock clock;
+			sf::Time counter(sf::seconds(0));
 				
-				if ((abs(position.x - (PointOrig.x + PointDest.x) / 2) < 0.5)&&(abs(position.y - (PointDest.y + PointOrig.y) / 2) < 0.5))//arrivé à la moitié,désaccélération
+			while ((dist(position, PointDest) > epsilon)&&((speed!=0.0)||(emergency_stop==0)))//((abs(position.x - PointDest.x) > epsilon) || (abs(position.y - PointDest.y) > epsilon))
+			{
+				sf::Time wait_time = sf::milliseconds(15);//calcul du temps la période de refresh, maxée à 125ms donc 8px/s 
+				double Dist_next;
+
+
+				Dist_next = dist_to_next(RAMES, LIGNE);
+				//if (get_id() == 3) { cout << Dist_next << endl; }
+
+				if ((flag == -1) && (((Dist_next < 300) && (Dist_next >= 0)) || (abs(dist(position, PointDest) - dist_freinage) < 0.5) || (emergency_stop != 0)))
 				{
+					if ((Dist_next < 300) && (Dist_next >= 0))
+					{
+						emergency_stop = 1;
+					}
 					acceleration *= flag;
 					flag = 1;
 				}
-
-				if (speed + acceleration*wait_time.asSeconds() >= 0) {
-					if (speed + acceleration * wait_time.asSeconds() >= max_speed) { speed = max_speed; }
+				if (speed + acceleration * wait_time.asSeconds() >= 0) {
+					if (speed + acceleration * wait_time.asSeconds() >= max_speed) {
+						speed = max_speed;
+					}
 					else { speed += acceleration * wait_time.asSeconds(); }
 				}
-				//cout << "tps_refresh" << wait_time.asMilliseconds() << endl;
-				std::cout << "speed" << speed << endl << endl;
-				move();
-				//cout << "Période de " << sf::Int64((float)(1000000 / speed) / 1000) <<endl;
-				sf::sleep(wait_time);//hyper IMPORTANT. La norme du vecteur de mouvement est constante, on change uniquement la période de refresh
-				//exemple. v=50px/s =50px/1000ms-> T(période)=1000/50=20 millisecondes
+				else
+				{
+					speed = 0.0;
+				}
+				if (Run == false) { return; }
+				move(wait_time);
+				counter += wait_time;
+				sf::sleep(wait_time);
 			}
 
+			//std::cout <<"La rame "<< id << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl;
 			acceleration = abs(acceleration);
 			speed = 0.0;
-			std::cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
-			myMutex.lock();
-			position = PointDest;//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
-			angle = 0.0;
-			myMutex.unlock();
-			sf::sleep(sf::milliseconds(2000));
-		}
-		//std::mutex locked;
-		sf::sleep(sf::milliseconds(1000));
-		speed *= -1;
-		acceleration *= -1;
-		sf::sleep(sf::milliseconds(1000));
-
-		speed = 0;
-		for (int i = Line.size()-1;i>0;--i) 
-		{
-			direction = Line[i  -1] - Line[i];
-			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
-			cout << "From" << Line[i].x << "," << Line[i].y << " moving to" << Line[i - 1].x << "," << Line[i - 1].y << endl << endl;
-			int flag = -1;
-
-			Vector2f PointOrig((i != Line.size()-1 ? Line[i] + Vector2f(0, decalage) : Line[Line.size()-1]));//permet de bien organiser les points de départs et d'arrivée de chaque trajet
-			Vector2f PointDest((i != 1) ? Line[i -1] + Vector2f(0, decalage) : Line[0]);
-			direction = PointDest - PointOrig;
-			angle = atan((direction.y / direction.x) * (direction.y * direction.y > 0 ? 1 : -1));
-
-			while ((abs(position.x - PointDest.x) > 0.5) || (abs(position.y - PointDest.y) > 0.5))
+			if (emergency_stop == 0)
 			{
-				sf::Time wait_time;//calcul du temps la période de refresh, maxée à 125ms donc 8px/s 
-				if (speed != 0) {
-					wait_time = sf::milliseconds(min(abs((int)(1000000 / speed) / 1000), 125));
-				}
-				else
-				{
-					wait_time = sf::milliseconds(20);
-				}
-				//std::cout << "distance de" << abs(position.x - ((Line[i - 1].x + Line[i].x) / 2)) << "," << abs(position.y - ((Line[i - 1].y + Line[i].y) / 2) - decalage);
-				if ((abs(position.x - (PointDest.x + PointOrig.x) / 2) < 0.5) && (abs(position.y - (PointDest.y + PointOrig.y) / 2 ) < 0.5))//arrivé à la moitié,désaccélération
-				{
-					acceleration *= flag;
-					flag = 1;
-				}
-
-				if (speed + acceleration * wait_time.asSeconds() <= 0) {
-					if (speed + acceleration * wait_time.asSeconds() <= -max_speed) { speed = max_speed; }
-					else { speed += acceleration * wait_time.asSeconds(); }
-				}
-				std::cout << "speed" << speed << endl << endl;
-				move();
-				//cout << "distance à la station: " << abs((position-Line[i-1]).x* (position - Line[i - 1]).x + (position - Line[i - 1]).y* (position - Line[i - 1]).y)<<endl;
-				//cout << "Période de " << sf::Int64((float)(1000000 / speed) / 1000) <<endl;
-				sf::sleep(wait_time);//hyper IMPORTANT. La norme du vecteur de mouvement est constante, on change uniquement la période de refresh
-				//exemple. v=50px/s =50px/1000ms-> T(période)=1000/50=20 millisecondes
+				precedente_station = (i+1)%LIGNE.quais.size();
+				myMutex.lock();
+				angle = 0.0;
+				position = PointDest;//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
+				myMutex.unlock();
 			}
-			acceleration = -abs(acceleration);
-			speed = 0.0;
-			std::cout << "arrive en " << position.x << "," << position.y << "Station N" << i + 1 << endl << endl;
-			myMutex.lock();
-			angle = 0.0;
-			position = PointDest;//remet le tram à la position de la station pour éviter des erreurs de calculs futurs
-			myMutex.unlock();
-			sf::sleep(sf::milliseconds(2000));
+			sf::sleep(sf::milliseconds(400));
 		}
-		std::cout << "Finished" << endl;
+		else
+		{
+			
+			sf::sleep(sf::seconds(1));
+			//cout <<"LE "<<get_id()<<" "<< dist_to_next(RAMES, LIGNE) << endl; 
+			if ((emergency_stop == 1) && (dist_to_next(RAMES, LIGNE) > 500))
+			{
+				emergency_stop = 0;//retour à la normale
+			}
+			//pour le cas d'arrêt manuel, on attend un redémarrage manuel
+			
+		}
+		
 	}
 }
 
-void Rame::move() {
+void Rame::move(sf::Time wait_time) {
 
 	std::lock_guard<std::mutex> locked(myMutex);
 
-
-	//cout << "Angle d'orientation: " << angle * 180 / 3.14 << endl ;
-	//cout << "Avant a" << position.x << "," << position.y<<"   ";
-	position.x += (speed> 0 ? 1 : -1)*(float)(cos(angle));
-	position.y += (speed > 0 ? 1 : -1)*(float)(sin(angle));
-	//cout << "Maintenant à" << position.x << "," << position.y << endl;
-	//sf::sleep(sf::milliseconds(10));
-   // cin >> angle;
-
+	position.x += speed *direction.x* wait_time.asSeconds();	//speed*(double)(cos(angle))*wait_time.asSeconds();
+	position.y += speed * direction.y * wait_time.asSeconds();	//speed*(double)(sin(angle)) * wait_time.asSeconds();
 }
 
 
@@ -250,7 +357,7 @@ void Rame::move() {
 																	//QUAI
 
 
-
+//classe qui gère les quais et nouveaux passagers
 class Quai
 {
 public:
@@ -264,7 +371,7 @@ public:
 
 																	//SYSTEM
 
-
+//ancien code plus utilisé
 class System
 {
 
@@ -300,4 +407,4 @@ public:
 //	{
 //		cout << "La station numero" << (*i).get_id() << " a pour nom " << (*i).get_name() << "\n\n";
 //	}
-//}
+//}  

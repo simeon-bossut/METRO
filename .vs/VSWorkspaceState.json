@@ -7,8 +7,9 @@
   },
   "ExpandedNodes": [
     "",
-    "\\METRO"
+    "\\METRO",
+    "\\METRO\\assets"
   ],
-  "SelectedNode": "\\METRO\\METRO.cpp",
+  "SelectedNode": "\\METRO",
   "PreviewInSolutionExplorer": false
 }
